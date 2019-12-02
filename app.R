@@ -2,6 +2,7 @@ pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, D
                RSQLite, dbplyr, R6, shinyjs, shinytoastr, shinyuser, pairwiseR)
 # devtools::document()
 # devtools::install()
+# devtools::install_github("systats/shinyuser")
 # devtools::install_github("benjaminguinaudeau/pairwiseR")
 
 
