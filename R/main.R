@@ -86,9 +86,9 @@ get_new_pair <- function(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL){
 #' add_dont_know
 #' @export
 
-add_dont_know <- function(user = NA, pageid = NA, name = NA, party = NA, pos = NA){
+add_dont_know <- function(user = NA, pageid = NA, name = NA, party = NA){
   message(name, " won't appear anymore")
-  con %>% DBI::dbWriteTable("dk", tibble::tibble(user, pageid, name, party, pos), append = T)
+  con %>% DBI::dbWriteTable("dk", tibble::tibble(user, pageid, name, party), append = T)
 }
 
 
