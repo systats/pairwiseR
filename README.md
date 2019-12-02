@@ -24,11 +24,11 @@ d <- get_new_pair(user = "ben", con = con) %>% glimpse
 
     ## Observations: 1
     ## Variables: 6
-    ## $ pageid_1 <int> 7885739
-    ## $ pageid_2 <int> 186942
-    ## $ name_1   <chr> "Karamba Diaby"
+    ## $ pageid_1 <int> 7848111
+    ## $ pageid_2 <int> 7455374
+    ## $ name_1   <chr> "Lars Castellucci"
     ## $ party_1  <chr> "SPD"
-    ## $ name_2   <chr> "Joachim Poß"
+    ## $ name_2   <chr> "Nina Scheer"
     ## $ party_2  <chr> "SPD"
 
 ``` r
@@ -36,7 +36,7 @@ d <- get_new_pair(user = "ben", con = con) %>% glimpse
 add_dont_know(user = "ben", pageid = d$pageid_1, name = d$name_1, party = d$party_1)
 ```
 
-    ## Karamba Diaby won't appear anymore
+    ## Lars Castellucci won't appear anymore
 
 ``` r
 # Get a new pair, but only update the first name. 
@@ -45,11 +45,11 @@ d <- get_new_pair(user = "ben", con = con, pageid_2 = d$pageid_2) %>% glimpse
 
     ## Observations: 1
     ## Variables: 6
-    ## $ pageid_1 <int> 174343
-    ## $ pageid_2 <int> 186942
-    ## $ name_1   <chr> "Barbara Hendricks"
+    ## $ pageid_1 <int> 938851
+    ## $ pageid_2 <int> 7455374
+    ## $ name_1   <chr> "Katja Mast"
     ## $ party_1  <chr> "SPD"
-    ## $ name_2   <chr> "Joachim Poß"
+    ## $ name_2   <chr> "Nina Scheer"
     ## $ party_2  <chr> "SPD"
 
 ``` r
@@ -59,11 +59,11 @@ d <- get_new_pair(user = "ben", con = con, pageid_1 = d$pageid_1) %>% glimpse
 
     ## Observations: 1
     ## Variables: 6
-    ## $ pageid_1 <int> 174343
-    ## $ pageid_2 <int> 940760
-    ## $ name_1   <chr> "Barbara Hendricks"
+    ## $ pageid_1 <int> 938851
+    ## $ pageid_2 <int> 666158
+    ## $ name_1   <chr> "Katja Mast"
     ## $ party_1  <chr> "SPD"
-    ## $ name_2   <chr> "Rita Schwarzelühr-Sutter"
+    ## $ name_2   <chr> "Christine Lambrecht"
     ## $ party_2  <chr> "SPD"
 
 ``` r
@@ -74,7 +74,7 @@ add_comparison(user = "ben", pageid_1 = d$pageid_1, pageid_2 = d$pageid_2,
                time = lubridate::now(), party = party)
 ```
 
-    ## Barbara Hendricks is more left than Rita Schwarzelühr-Sutter
+    ## Katja Mast is more left than Christine Lambrecht
 
 ``` r
 # Get the don't knows
@@ -85,8 +85,8 @@ dks <- con %>% tbl("dk") %>% glimpse
     ## Variables: 4
     ## Database: sqlite 3.29.0 [/Users/benjaminguinaudeau/Google Drive/Konstanz/SideProjects/package/pairwiseR/data/mp.db]
     ## $ user   <chr> "ben", "ben"
-    ## $ pageid <int> NA, 7885739
-    ## $ name   <chr> NA, "Karamba Diaby"
+    ## $ pageid <int> NA, 7848111
+    ## $ name   <chr> NA, "Lars Castellucci"
     ## $ party  <chr> NA, "SPD"
 
 ``` r
@@ -98,10 +98,10 @@ comps <- con %>% tbl("com") %>% glimpse
     ## Variables: 6
     ## Database: sqlite 3.29.0 [/Users/benjaminguinaudeau/Google Drive/Konstanz/SideProjects/package/pairwiseR/data/mp.db]
     ## $ user      <chr> "ben", "ben", "ben"
-    ## $ pageid_1  <int> NA, 174343, 174343
-    ## $ pageid_2  <int> NA, 940760, 940760
+    ## $ pageid_1  <int> NA, 938851, 938851
+    ## $ pageid_2  <int> NA, 666158, 666158
     ## $ more_left <int> NA, 1, -1
-    ## $ time      <dbl> NA, 1575315235, 1575315235
+    ## $ time      <dbl> NA, 1575315297, 1575315297
     ## $ party     <chr> NA, "SPD", "SPD"
 
 ## MP Database
