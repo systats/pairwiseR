@@ -1,0 +1,79 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(tidyverse)
+```
+
+## MP Database
+
+```{r}
+data <- legislatoR::get_core("deu") %>%
+  left_join(legislatoR::get_political("deu")) %>%
+  left_join(legislatoR::get_office("deu")) %>%
+  left_join(legislatoR::get_traffic("deu"))
+
+mp <- data %>%
+  filter(session == 18) %>%
+  select(pageid, name, party, date, traffic) %>%
+  group_by(pageid, name, party) %>%
+  summarise(trafic = median(traffic)) %>%
+  ungroup %>%
+  mutate(party = case_when(
+    party %in% c("CDU", "CSU") ~ "CDU/CSU", 
+    party == "BÜNDNIS 90/DIE GRÜNEN" ~ "GRUENE", 
+    party ==  "DIE LINKE" ~ "PDS/LINKE", 
+    party == "none" ~ NA_character_, 
+    T ~ party
+  )) %>%
+  group_by(party) %>%
+  arrange(-trafic) %>%
+  slice(1:100) %>%
+  mutate(most_popular = ifelse(1:n() %in% 1:10, T, F)) %>%
+  ungroup %>%
+  glimpse
+
+usethis::use_data(mp)
+
+```
+
+## Main 
+
+```{r}
+party <- "SPD"
+
+# This initialises the database, use argument force to overwrite existing database
+con <- init_db(user = "ben", path = "data/mp.db", force = T)
+
+# Extracting all potential pairs of MP
+pair_mp <- get_pair_matrix(party = party)
+
+
+# Get a new pair, which has not been coded yet and which does not include "not known" mps
+d <- get_new_pair(user = "ben", con = con) %>% glimpse
+
+# Add one of the name to the don't know table ("dk")
+add_dont_know(user = "ben", pageid = d$pageid_1, name = d$name_1, party = d$party_1)
+
+
+# Get a new pair, but only update the first name. 
+d <- get_new_pair(user = "ben", con = con, pageid_2 = d$pageid_2) %>% glimpse
+# Same with the second name
+d <- get_new_pair(user = "ben", con = con, pageid_1 = d$pageid_1) %>% glimpse
+
+# Add comparison, more_left should be either : -1 (1 > 2) ; 0 (same position) ; 1 (2 > 1)
+add_comparison(user = "ben", pageid_1 = d$pageid_1, pageid_2 = d$pageid_2, 
+               name_1 = d$name_1, d$name_2,
+               more_left = 1, 
+               time = lubridate::now(), party = party)
+
+# Get the don't knows
+dks <- con %>% tbl("dk") %>% glimpse
+# Get the comparisons
+comps <- con %>% tbl("com") %>% glimpse
+```
+
