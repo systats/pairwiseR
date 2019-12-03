@@ -1,10 +1,10 @@
 #' init_db
 #' @export
 
-init_db <- function(user = NA, path = NA, force = F){
+init_db <- function(user = NA, path = NA){
   con <- DBI::dbConnect(RSQLite::SQLite(), path)
   
-  if(force){
+  if(length(setdiff(DBI::dbListTables(con), c("com", "dk"))) != 0){
     con %>% DBI::dbWriteTable("com", tibble::tibble(user = user, pageid_1 = NA, pageid_2 = NA, more_left = NA, time = NA, party = NA), overwrite = T)
     con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA, party = NA), overwrite = T)
   }
