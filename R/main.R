@@ -86,7 +86,7 @@ get_new_pair <- function(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL, 
 #' add_dont_know
 #' @export
 
-add_dont_know <- function(user = NA, pageid = NA, name = NA, party = NA){
+add_dont_know <- function(user = NA, pageid = NA, name = NA, party = NA, con = NULL){
   message(name, " won't appear anymore")
   con %>% DBI::dbWriteTable("dk", tibble::tibble(user, pageid, name, party), append = T)
 }
@@ -96,7 +96,7 @@ add_dont_know <- function(user = NA, pageid = NA, name = NA, party = NA){
 #' @export
 
 add_comparison <- function(user = NA, pageid_1 = NA, pageid_2 = NA, name_1 = NA, name_2 = NA,
-                           more_left = NA, time = NA, party = NA){
+                           more_left = NA, time = NA, party = NA, con = NULL){
 
   if(more_left == 1){
     message(name_1, " is more left than ", name_2)
