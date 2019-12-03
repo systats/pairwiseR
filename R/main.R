@@ -40,7 +40,7 @@ get_pair_matrix <- function(party = "leader"){
 #' get_new_pair
 #' @export
 
-get_new_pair <- function(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL){
+get_new_pair <- function(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL, pair_mp = NULL){
 
   if(is.null(pageid_1) & is.null(pageid_2)){
     tmp_mp <- pair_mp

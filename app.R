@@ -67,9 +67,9 @@ server <- function(input, output, session){
         
         print(input$party)
         print(user()$user)
-        pair_mp <- get_pair_matrix(party = input$party)
+        pair_mp <- get_pair_matrix(party = input$party) %>% glimpse
         
-        d <- pairwiseR::get_new_pair(user = "root", con = con) %>% glimpse
+        d <- pairwiseR::get_new_pair(user = "root", con = con, pair_mp = pair_mp) %>% glimpse
         
         #con <- pairwiseR::init_db(user = "root", path = "data/mp.db")
         #pair_mp <- get_pair_matrix(party = "SPD")
