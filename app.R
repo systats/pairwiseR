@@ -100,6 +100,8 @@ server <- function(input, output, session){
     })
     
     observeEvent(action(), {
+        con <- pairwiseR::init_db(user = "root", path = "data/mp.db") #, force = T
+        
         if(str_detect(action(), "ignore")){
             if(str_detect(action(), "a")){
                 add_dont_know(user = user()$user, pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1, con = con)
