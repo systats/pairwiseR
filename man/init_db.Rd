@@ -4,7 +4,7 @@
 \alias{init_db}
 \title{init_db}
 \usage{
-init_db(user = NA, path = NA, force = F)
+init_db(user = NA, path = NA)
 }
 \description{
 init_db

@@ -5,6 +5,19 @@ user_input_ui <- function(id){
   ns <- NS(id)
   
   tagList(
+    # div(class = "ui bottom attached buttons", id = "button_group",
+    #     actionButton(ns("a"), label =  "A", class = "big green ui button"),
+    #     actionButton(ns("ab"), label = "AB", class = "big ui button"),
+    #     actionButton(ns("b"), label =  "B", class = "big red ui button")
+    # ),
+    # div(class = "ui bottom attached buttons", id = "button_group",
+    #     actionButton(ns("ignore_a"), label = "", icon = icon("green exclamation circle"), class = "big basic ui button"),
+    #     actionButton(ns("ignore"), label = "", icon = icon("exclamation circle"), class = "big basic ui button"),
+    #     actionButton(ns("ignore_b"), label = "", icon = icon("red exclamation circle"), class = "big ui button")
+    # ),
+    # div(class = "ui bottom buttons", id = "button_group",
+    #     actionButton(ns("undo"), label = "", icon = icon("undo"), class = "big ui button")
+    # )
     div(class = "ui bottom attached buttons", id = "button_group",
         actionButton(ns("ignore_a"), label = "", icon = icon("green exclamation circle"), class = "big basic ui button"),
         actionButton(ns("a"), label = "A", class = "big green ui button"),

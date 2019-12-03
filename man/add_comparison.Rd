@@ -6,7 +6,7 @@
 \usage{
 add_comparison(user = NA, pageid_1 = NA, pageid_2 = NA,
   name_1 = NA, name_2 = NA, more_left = NA, time = NA,
-  party = NA)
+  party = NA, con = NULL)
 }
 \description{
 add_comparison
