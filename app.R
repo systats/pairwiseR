@@ -67,9 +67,9 @@ server <- function(input, output, session){
         
         print(input$party)
         print(user()$user)
-        pair_mp <- get_pair_matrix(party = input$party)
+        pair_mp <- get_pair_matrix(party = input$party) %>% glimpse
         
-        d <- pairwiseR::get_new_pair(user = "root", con = con) %>% glimpse
+        d <- pairwiseR::get_new_pair(user = "root", con = con, pair_mp = pair_mp) %>% glimpse
         
         #con <- pairwiseR::init_db(user = "root", path = "data/mp.db")
         #pair_mp <- get_pair_matrix(party = "SPD")
@@ -102,12 +102,12 @@ server <- function(input, output, session){
     observeEvent(action(), {
         if(str_detect(action(), "ignore")){
             if(str_detect(action(), "a")){
-                add_dont_know(user = user()$user, pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1)
+                add_dont_know(user = user()$user, pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1, con = con)
             } else if(str_detect(action(), "b")){
-                add_dont_know(user = user()$user, pageid = pair()$pageid_2, name = pair()$name_2, party = pair()$party_2)
+                add_dont_know(user = user()$user, pageid = pair()$pageid_2, name = pair()$name_2, party = pair()$party_2, con = con)
             } else {
-                add_dont_know(user = user()$user, pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1)
-                add_dont_know(user = user()$user, pageid = pair()$pageid_2, name = pair()$name_2, party = pair()$party_2)
+                add_dont_know(user = user()$user, pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1, con = con)
+                add_dont_know(user = user()$user, pageid = pair()$pageid_2, name = pair()$name_2, party = pair()$party_2, con = con)
             }
         }
         
@@ -120,7 +120,7 @@ server <- function(input, output, session){
                            name_1 = pair()$name_1, pair()$name_2,
                            more_left = outcome, 
                            time = lubridate::now(), 
-                           party = input$party
+                           party = input$party, con = con 
                          )
         }
         

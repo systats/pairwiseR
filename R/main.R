@@ -1,10 +1,10 @@
 #' init_db
 #' @export
 
-init_db <- function(user = NA, path = NA, force = F){
+init_db <- function(user = NA, path = NA){
   con <- DBI::dbConnect(RSQLite::SQLite(), path)
   
-  if(force){
+  if(length(setdiff(DBI::dbListTables(con), c("com", "dk"))) != 0){
     con %>% DBI::dbWriteTable("com", tibble::tibble(user = user, pageid_1 = NA, pageid_2 = NA, more_left = NA, time = NA, party = NA), overwrite = T)
     con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA, party = NA), overwrite = T)
   }
@@ -40,7 +40,7 @@ get_pair_matrix <- function(party = "leader"){
 #' get_new_pair
 #' @export
 
-get_new_pair <- function(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL){
+get_new_pair <- function(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL, pair_mp = NULL){
 
   if(is.null(pageid_1) & is.null(pageid_2)){
     tmp_mp <- pair_mp
@@ -86,7 +86,7 @@ get_new_pair <- function(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL){
 #' add_dont_know
 #' @export
 
-add_dont_know <- function(user = NA, pageid = NA, name = NA, party = NA){
+add_dont_know <- function(user = NA, pageid = NA, name = NA, party = NA, con = NULL){
   message(name, " won't appear anymore")
   con %>% DBI::dbWriteTable("dk", tibble::tibble(user, pageid, name, party), append = T)
 }
@@ -96,7 +96,7 @@ add_dont_know <- function(user = NA, pageid = NA, name = NA, party = NA){
 #' @export
 
 add_comparison <- function(user = NA, pageid_1 = NA, pageid_2 = NA, name_1 = NA, name_2 = NA,
-                           more_left = NA, time = NA, party = NA){
+                           more_left = NA, time = NA, party = NA, con = NULL){
 
   if(more_left == 1){
     message(name_1, " is more left than ", name_2)
