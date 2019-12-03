@@ -60,14 +60,13 @@ server <- function(input, output, session){
         
         logstate()
         
-        # This initialises the database, use argument force to overwrite existing database
-        con <- pairwiseR::init_db(user = "root", path = "data/mp.db") #, force = T
+        con <- pairwiseR::init_db(user = "root", path = "data/mp.db")
         #dks <- con %>% tbl("dk") %>% glimpse
         #comps <- con %>% tbl("com") %>% glimpse
         
         print(input$party)
         print(user()$user)
-        pair_mp <- get_pair_matrix(party = input$party) %>% glimpse
+        pair_mp <- get_pair_matrix(party = input$party)
         
         d <- pairwiseR::get_new_pair(user = "root", con = con, pair_mp = pair_mp) %>% glimpse
         
@@ -113,16 +112,20 @@ server <- function(input, output, session){
             }
         }
         
-        if(action() == ""){
+        if(str_detect(action(), "^(a|b)b?$")){
             if(action() == "a") outcome <- 1
             if(action() == "b") outcome <- -1
             if(action() == "ab") outcome <- 0
             
-            add_comparison(user = user()$user, pageid_1 = pair()$pageid_1, pageid_2 = pair()$pageid_2, 
-                           name_1 = pair()$name_1, pair()$name_2,
+            add_comparison(user = user()$user, 
+                           pageid_1 = pair()$pageid_1, 
+                           pageid_2 = pair()$pageid_2, 
+                           name_1 = pair()$name_1, 
+                           pair()$name_2,
                            more_left = outcome, 
                            time = lubridate::now(), 
-                           party = input$party, con = con 
+                           party = input$party, 
+                           con = con 
                          )
         }
         

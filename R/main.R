@@ -65,6 +65,8 @@ get_new_pair <- function(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL, 
     dplyr::filter(user == {{user}}) %>%
     dplyr::collect(.)
 
+  
+  
   new_pair <- tmp_mp %>%
     dplyr::anti_join(already, by = c("pageid_1", "pageid_2")) %>%
     # filter(party %in% {{party}}) %>%
@@ -101,11 +103,16 @@ add_comparison <- function(user = NA, pageid_1 = NA, pageid_2 = NA, name_1 = NA,
   if(more_left == 1){
     message(name_1, " is more left than ", name_2)
   } else if (more_left == -1 ) {
-    message(name_2, " is more left than ", name_1s)
+    message(name_2, " is more left than ", name_1)
   } else {
-    message(name_2, " and ", name_1s, " have a similar position")
+    message(name_2, " and ", name_1, " have a similar position")
   }
-
-  con %>% DBI::dbWriteTable("com", tibble::tibble(user, pageid_1, pageid_2, more_left, time, party), append = T)
-  con %>% DBI::dbWriteTable("com", tibble::tibble(user, pageid_2, pageid_1, more_left = -more_left, time, party), append = T)
+  
+  out_1 <- tibble::tibble(user, pageid_1, pageid_2, more_left, time, party) %>% glimpse
+  out_2 <- tibble::tibble(user, pageid_2 = pageid_1, pageid_1 = {{pageid_2}}, more_left = -more_left, time, party) %>% glimpse
+  
+  
+  
+  con %>% DBI::dbWriteTable("com", out_1, append = T)
+  con %>% DBI::dbWriteTable("com", out_2, append = T)
 }
