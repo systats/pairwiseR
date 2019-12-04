@@ -4,7 +4,8 @@
 \alias{get_new_pair}
 \title{get_new_pair}
 \usage{
-get_new_pair(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL)
+get_new_pair(user = NA, con = NA, pageid_1 = NULL, pageid_2 = NULL,
+  pair_mp = NULL, party = NULL)
 }
 \description{
 get_new_pair

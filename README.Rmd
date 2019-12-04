@@ -50,6 +50,13 @@ dks <- con %>% tbl("dk") %>% glimpse
 comps <- con %>% tbl("com") %>% glimpse
 ```
 
+```{r}
+pairwiseR::mp %>%
+  count(party) %>%
+  mutate(comparisons = n * 20)
+```
+
+
 ## MP Database
 
 ```{r, eval=F}

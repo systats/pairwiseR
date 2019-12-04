@@ -16,6 +16,8 @@ pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, D
 
 ### Needed for user db initialization
 check_user_db()
+pairwiseR::add_user_db(user = "ben", password = "1234", signed_in = NA, role = "admin")
+pairwiseR::add_user_db(user = "simon", password = "1234", signed_in = NA, role = "admin")
 # User <root> with password <2019> was created
 
 ui <- function(){
@@ -34,9 +36,10 @@ ui <- function(){
             br(),
             div(class = "ui large header", "Welche der beiden Abgeordneten ist linker?"),
             p(uiOutput("content")),
-            br(),
+            # br(),
+            # p(user_input_ui("action"))
             div(id="footer_container",
-                div(class="footer", 
+                div(class="footer",
                     user_input_ui("action")
                 )
             )
@@ -52,24 +55,31 @@ server <- function(input, output, session){
     
     # which user? connect to db
     user <- callModule(login_server, "login") 
-
+    
     pair <- reactive({
         
         req(user())
         req(input$party)
         
+        print(glimpse(user()$user))
+        
         logstate()
         
-        # This initialises the database, use argument force to overwrite existing database
-        con <- pairwiseR::init_db(user = "root", path = "data/mp.db") #, force = T
+        
+        con <- pairwiseR::init_db(user = user()$user, path = "data/mp.db")
+        print(input$party)
         #dks <- con %>% tbl("dk") %>% glimpse
         #comps <- con %>% tbl("com") %>% glimpse
         
-        print(input$party)
-        print(user()$user)
-        pair_mp <- get_pair_matrix(party = input$party) %>% glimpse
         
-        d <- pairwiseR::get_new_pair(user = "root", con = con, pair_mp = pair_mp) %>% glimpse
+        
+        pair_mp <- get_pair_matrix(party = input$party)
+        
+        print(input$party)
+        
+        d <- pairwiseR::get_new_pair(user = user()$user, 
+                                     con = con, 
+                                     pair_mp = pair_mp, party = input$party) %>% glimpse
         
         #con <- pairwiseR::init_db(user = "root", path = "data/mp.db")
         #pair_mp <- get_pair_matrix(party = "SPD")
@@ -100,6 +110,8 @@ server <- function(input, output, session){
     })
     
     observeEvent(action(), {
+        con <- pairwiseR::init_db(user = user()$user, path = "data/mp.db") #, force = T
+        
         if(str_detect(action(), "ignore")){
             if(str_detect(action(), "a")){
                 add_dont_know(user = user()$user, pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1, con = con)
@@ -111,16 +123,20 @@ server <- function(input, output, session){
             }
         }
         
-        if(action() == ""){
+        if(str_detect(action(), "^(a|b)b?$")){
             if(action() == "a") outcome <- 1
             if(action() == "b") outcome <- -1
             if(action() == "ab") outcome <- 0
             
-            add_comparison(user = user()$user, pageid_1 = pair()$pageid_1, pageid_2 = pair()$pageid_2, 
-                           name_1 = pair()$name_1, pair()$name_2,
+            add_comparison(user = user()$user, 
+                           pageid_1 = pair()$pageid_1, 
+                           pageid_2 = pair()$pageid_2, 
+                           name_1 = pair()$name_1, 
+                           pair()$name_2,
                            more_left = outcome, 
                            time = lubridate::now(), 
-                           party = input$party, con = con 
+                           party = input$party, 
+                           con = con 
                          )
         }
         
