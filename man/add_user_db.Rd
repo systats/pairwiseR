@@ -4,7 +4,7 @@
 \alias{add_user_db}
 \title{add_user_db}
 \usage{
-add_user_db(user, password, signed_in, role)
+add_user_db(user, password, signed_in, role, debug = F)
 }
 \description{
 add_user_db
