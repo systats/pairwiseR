@@ -4,8 +4,9 @@ pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, D
 # devtools::install()
 # devtools::install_github("systats/shinyuser")
 # devtools::install_github("benjaminguinaudeau/pairwiseR")
+# unlink("/Library/Frameworks/R.framework/Versions/3.6/Resources/library/00LOCK-pairwiseR", recursive = TRUE)
 
-
+source("R/vignette_mod.R")
 # 4x3 footer decisions with popups
 # A | B
 # ignore A| ignore B
@@ -18,7 +19,7 @@ pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, D
 check_user_db()
 pairwiseR::add_user_db(user = "ben", password = "1234", signed_in = NA, role = "admin")
 pairwiseR::add_user_db(user = "simon", password = "1234", signed_in = NA, role = "admin")
-# User <root> with password <2019> was created
+# User <user()$user> with password <2019> was created
 
 ui <- function(){
     
@@ -32,17 +33,20 @@ ui <- function(){
         ),
         shinyjs::useShinyjs(),
         div(class = "ui text container",
-            dropdown("party", choices = c("SPD", "GRUENE", "PDS/LINKE", "CDU/CSU"), value = "SPD"),
             br(),
-            div(class = "ui large header", "Welche der beiden Abgeordneten ist linker?"),
-            p(uiOutput("content")),
-            # br(),
-            # p(user_input_ui("action"))
-            div(id="footer_container",
-                div(class="footer",
-                    user_input_ui("action")
+            div(class = "ui grid",
+                div(class = "five wide column",
+                    div(class = "ui header", "Wähle eine Partei")
+                ),
+                div(class = "five wide column",
+                    dropdown("party", choices = c("SPD", "GRUENE", "PDS/LINKE", "CDU/CSU"), value = "SPD")
+                ),
+                div(class = "six wide column",
+                   ""
                 )
-            )
+            ),
+            br(),
+            vignette_ui("action")
         )
     )
 }
@@ -60,66 +64,41 @@ server <- function(input, output, session){
         
         req(user())
         req(input$party)
-        
-        print(glimpse(user()$user))
-        
         logstate()
+        # print(glimpse("user()$user"))
         
-        
-        con <- pairwiseR::init_db(user = user()$user, path = "data/mp.db")
-        print(input$party)
-        #dks <- con %>% tbl("dk") %>% glimpse
-        #comps <- con %>% tbl("com") %>% glimpse
-        
-        
-        
+        con <- pairwiseR::init_db(user = "user()$user", path = "data/mp.db")
+
         pair_mp <- get_pair_matrix(party = input$party)
         
-        print(input$party)
-        
-        d <- pairwiseR::get_new_pair(user = user()$user, 
+        d <- pairwiseR::get_new_pair(user = "user()$user", 
                                      con = con, 
                                      pair_mp = pair_mp, party = input$party) %>% glimpse
-        
-        #con <- pairwiseR::init_db(user = "root", path = "data/mp.db")
-        #pair_mp <- get_pair_matrix(party = "SPD")
+
         return(d)
     })
     
-    # present from db
-    output$content <- renderUI({
-        req(pair())
-        div(class = "ui grid",
-            div(class = "ui eight wide column",
-                pair()$name_1
-            ),
-            div(class = "ui eight wide column",
-                pair()$name_2
-            )
-        )
-        
-    })
-    
-    action <- callModule(user_input_server, "action")
+    action <- callModule(vignette_server, "action", pair)
     
     observe({
         req(action())
         req(user())
         # print(glimpse(user()))
-        message(user()$user, " > ", action(), " > ", pageid = pair()$pageid_1, " ", pageid = pair()$pageid_2)
+        message("user()$user", " > ", action(), " > ", pageid = pair()$pageid_1, " ", pageid = pair()$pageid_2)
     })
     
     observeEvent(action(), {
-        con <- pairwiseR::init_db(user = user()$user, path = "data/mp.db") #, force = T
+        
+        con <- pairwiseR::init_db(user = "user()$user", path = "data/mp.db") #, force = T
         
         if(str_detect(action(), "ignore")){
             if(str_detect(action(), "a")){
-                add_dont_know(user = user()$user, pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1, con = con)
+                add_dont_know(user = "user()$user", pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1, con = con)
             } else if(str_detect(action(), "b")){
-                add_dont_know(user = user()$user, pageid = pair()$pageid_2, name = pair()$name_2, party = pair()$party_2, con = con)
+                add_dont_know(user = "user()$user", pageid = pair()$pageid_2, name = pair()$name_2, party = pair()$party_2, con = con)
             } else {
-                add_dont_know(user = user()$user, pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1, con = con)
-                add_dont_know(user = user()$user, pageid = pair()$pageid_2, name = pair()$name_2, party = pair()$party_2, con = con)
+                add_dont_know(user = "user()$user", pageid = pair()$pageid_1, name = pair()$name_1, party = pair()$party_1, con = con)
+                add_dont_know(user = "user()$user", pageid = pair()$pageid_2, name = pair()$name_2, party = pair()$party_2, con = con)
             }
         }
         
@@ -128,7 +107,7 @@ server <- function(input, output, session){
             if(action() == "b") outcome <- -1
             if(action() == "ab") outcome <- 0
             
-            add_comparison(user = user()$user, 
+            add_comparison(user = "user()$user", 
                            pageid_1 = pair()$pageid_1, 
                            pageid_2 = pair()$pageid_2, 
                            name_1 = pair()$name_1, 
