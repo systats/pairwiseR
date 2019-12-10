@@ -10,10 +10,9 @@ vignette_ui <- function(id){
     br(),
     div(class = "ui buttons",style = "display: flex; justify-content: center; ",
   
-       actionButton(ns("ignore_a"), label = "", icon = icon("green exclamation circle"), class = "big basic ui button"),
-       actionButton(ns("ignore"), label = "", icon = icon("exclamation circle"), class = "big ui button"),    
-       actionButton(ns("ab"), label = "AB", class = "big ui button"),
-       actionButton(ns("ignore_b"), label = "", icon = icon("red exclamation circle"), class = "big basic ui button")
+       actionButton(ns("ignore_a"), label = "Unbekannt", class = "big basic green ui button"),
+       actionButton(ns("ignore"), label = "Beide", class = "big ui button"),    
+       actionButton(ns("ignore_b"), label = "Unbekannt", class = "big basic red ui button")
 
     )
   )
@@ -30,16 +29,29 @@ vignette_server <- function(input, output, session, pair){
       div(class = "ui large header", "Welche der beiden Abgeordneten ist linker?"),
       br(),
       div(class = "ui grid",
-          div(class = "ui eight wide column",
-              a(class="ui green card", id = session$ns("a"), href = "#", class = "action-button",
+          div(class = "six wide column",
+              a(class="ui green card action-button", id = session$ns("a"), href = "#",
                 div(class="content",
                     div(class = "ui header", pair()$name_1),
                     div(class = "meta", pair()$party_1)
                 )
               )
           ),
-          div(class = "ui eight wide column",
-              a(class="ui red card", id = session$ns("b"), href = "#", class = "action-button",
+          div(class = "four wide column",
+              a(class="ui card action-button", id = session$ns("ab"), href = "#", 
+                div(class="content",
+                    #div(class = "ui header", ""),
+                    br(),
+                    HTML('<center>'),
+                    div(class = "meta", "Gleich"),
+                    HTML('</center>'),
+                    br()
+                )
+              )
+            #actionButton(session$ns("ab"), label = "Gleich", class = "ui button"),
+          ),
+          div(class = "six wide column",
+              a(class="ui red card action-button", id = session$ns("b"), href = "#",
                 div(class="content",
                     div(class = "ui header", pair()$name_2),
                     div(class = "meta", pair()$party_2)
