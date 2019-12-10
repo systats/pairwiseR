@@ -19,9 +19,15 @@ vignette_ui <- function(id){
 
 }
 
+
+
+
+
+
 #' vignette_server
 #' @export
 vignette_server <- function(input, output, session, pair){
+  
   
   output$content <- renderUI({
     req(pair())
@@ -31,6 +37,7 @@ vignette_server <- function(input, output, session, pair){
       div(class = "ui grid",
           div(class = "six wide column",
               a(class="ui green card action-button", id = session$ns("a"), href = "#",
+                img(class = "ui small centered image", src = pairwiseR::mp$image_url[pairwiseR::mp$pageid == as.numeric(pair()$pageid_1)]),
                 div(class="content",
                     div(class = "ui header", pair()$name_1),
                     div(class = "meta", pair()$party_1)
@@ -52,6 +59,7 @@ vignette_server <- function(input, output, session, pair){
           ),
           div(class = "six wide column",
               a(class="ui red card action-button", id = session$ns("b"), href = "#",
+                img(class = "ui small centered image", src = pairwiseR::mp$image_url[pairwiseR::mp$pageid == as.numeric(pair()$pageid_2)]),
                 div(class="content",
                     div(class = "ui header", pair()$name_2),
                     div(class = "meta", pair()$party_2)
