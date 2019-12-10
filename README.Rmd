@@ -63,12 +63,15 @@ pairwiseR::mp %>%
 data <- legislatoR::get_core("deu") %>%
   left_join(legislatoR::get_political("deu")) %>%
   left_join(legislatoR::get_office("deu")) %>%
-  left_join(legislatoR::get_traffic("deu"))
+  left_join(legislatoR::get_traffic("deu")) %>%
+  left_join(legislatoR::get_portrait("deu"))
 
-mp <- data %>%
+# names(data)
+
+mp <- data %>% 
   filter(session == 18) %>%
-  select(pageid, name, party, date, traffic) %>%
-  group_by(pageid, name, party) %>%
+  select(pageid, name, party, date, traffic, image_url) %>%
+  group_by(pageid, name, party, image_url) %>%
   summarise(trafic = median(traffic)) %>%
   ungroup %>%
   mutate(party = case_when(
@@ -85,7 +88,7 @@ mp <- data %>%
   ungroup %>%
   glimpse
 
-usethis::use_data(mp)
+usethis::use_data(mp, overwrite = T)
 
 ```
 
