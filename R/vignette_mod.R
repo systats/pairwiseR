@@ -4,7 +4,46 @@ vignette_ui <- function(id){
   ns <- NS(id)  
   
   tagList(
-    uiOutput(ns("content")),
+    br(),
+    div(class = "ui grid",
+        div(class = "four wide column",
+            dropdown("party", choices = c("SPD", "GRUENE", "PDS/LINKE", "CDU/CSU"), value = "SPD")
+        ),
+        div(class = "twelve wide column",
+            span("Welche Abgeordnete ist politisch linker?", style = "font-size:20px;")
+        )
+    ),
+    br(),
+    div(class = "ui grid",
+        div(class = "six wide column",
+            a(class="ui green card action-button", id = ns("a"), href = "#",
+              div(class="content",
+                  uiOutput(ns("left"))
+              ),
+              uiOutput(ns("left_image"))
+
+            )
+        ),
+        div(class = "four wide column",
+            a(class="ui card action-button", id = ns("ab"), href = "#", 
+              div(class="content",
+                  br(),
+                  HTML('<center>'),
+                  div(class = "meta", "Gleich"),
+                  HTML('</center>'),
+                  br()
+              )
+            )
+        ),
+        div(class = "six wide column",
+            a(class="ui red card action-button", id = ns("b"), href = "#",
+              div(class="content",
+                  uiOutput(ns("right"))
+              ),
+              uiOutput(ns("right_image")),
+            )
+        )
+    ),
     br(),
     br(),
     br(),
@@ -27,47 +66,29 @@ vignette_ui <- function(id){
 #' vignette_server
 #' @export
 vignette_server <- function(input, output, session, pair){
+
   
-  
-  output$content <- renderUI({
-    req(pair())
+  output$left <- renderUI({
     tagList(
-      div(class = "ui large header", "Welche der beiden Abgeordneten ist linker?"),
-      br(),
-      div(class = "ui grid",
-          div(class = "six wide column",
-              a(class="ui green card action-button", id = session$ns("a"), href = "#",
-                img(class = "ui small centered image", src = pairwiseR::mp$image_url[pairwiseR::mp$pageid == as.numeric(pair()$pageid_1)]),
-                div(class="content",
-                    div(class = "ui header", pair()$name_1),
-                    div(class = "meta", pair()$party_1)
-                )
-              )
-          ),
-          div(class = "four wide column",
-              a(class="ui card action-button", id = session$ns("ab"), href = "#", 
-                div(class="content",
-                    #div(class = "ui header", ""),
-                    br(),
-                    HTML('<center>'),
-                    div(class = "meta", "Gleich"),
-                    HTML('</center>'),
-                    br()
-                )
-              )
-            #actionButton(session$ns("ab"), label = "Gleich", class = "ui button"),
-          ),
-          div(class = "six wide column",
-              a(class="ui red card action-button", id = session$ns("b"), href = "#",
-                img(class = "ui small centered image", src = pairwiseR::mp$image_url[pairwiseR::mp$pageid == as.numeric(pair()$pageid_2)]),
-                div(class="content",
-                    div(class = "ui header", pair()$name_2),
-                    div(class = "meta", pair()$party_2)
-                )
-              )
-          )
-      )
+      div(class = "ui header", pair()$name_1),
+      div(class = "meta", pair()$party_1)
     )
+  })
+  
+  output$left_image <- renderUI({
+    img(class = "ui centered image", src = pairwiseR::mp$image_url[pairwiseR::mp$pageid == as.numeric(pair()$pageid_1)])
+  })
+  
+  
+  output$right <- renderUI({
+    tagList(
+      div(class = "ui header", pair()$name_2),
+      div(class = "meta", pair()$party_2)
+    )
+  })
+  
+  output$right_image <- renderUI({
+    img(class = "ui centered image", src = pairwiseR::mp$image_url[pairwiseR::mp$pageid == as.numeric(pair()$pageid_2)])
   })
   
   log <- reactiveValues(state = "")
