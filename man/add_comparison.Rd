@@ -4,9 +4,18 @@
 \alias{add_comparison}
 \title{add_comparison}
 \usage{
-add_comparison(user = NA, pageid_1 = NA, pageid_2 = NA,
-  name_1 = NA, name_2 = NA, more_left = NA, time = NA,
-  party = NA, con = NULL)
+add_comparison(
+  user = NA,
+  pageid_1 = NA,
+  pageid_2 = NA,
+  name_1 = NA,
+  name_2 = NA,
+  more_left = NA,
+  time = NA,
+  party = NA,
+  con = NULL,
+  par_anal = 2
+)
 }
 \description{
 add_comparison

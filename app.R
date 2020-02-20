@@ -3,7 +3,12 @@ pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, D
 # devtools::document()
 # devtools::install()
 # devtools::install_github("systats/shinyuser")
-# unlink("/Library/Frameworks/R.framework/Versions/3.6/Resources/library/00LOCK-pairwiseR", recursive = TRUE)
+
+# new <- shinyuser::user$new("data/users")
+# new$username <- "test_1"
+# new$password <- "2020"
+# new$load("root1")
+# new$update()
 
 library(shiny)
 library(shiny.semantic)
@@ -19,38 +24,20 @@ library(RSQLite)
 library(V8)
 
 source("R/vignette_mod.R")
-# 4x3 footer decisions with popups
-# A | B
-# ignore A| ignore B
-# igno re | back
 
-# library(shinyuser)
-# options(shiny.maxRequestSize=200*1024^2) 
-
-# pairwiseR::init_db("root", "data/mp.db")
-
-### Needed for user db initialization
 ui <- shiny.semantic::semanticPage(
-  shiny::tags$head(
-    shiny::tags$link(rel="stylesheet", href="styles/main.css")
-  ),
-  dashboardHeader(
-    inverted = T, 
-    manager_ui("manager"),
-    shinyjs::useShinyjs()
-  ),
-  shinyjs::useShinyjs(),
-  div(class = "ui text container",
-    br(),
-    vignette_ui("action"),
-    br(),
-    div(class="ui green progress", id = "global",
-        div(class="bar",
-            div(class="progress")
+        shiny::tags$head(
+            shiny::tags$link(rel="stylesheet", href="styles/main.css")
+        ),
+        dashboardHeader(
+            inverted = T, 
+            manager_ui("manager")
+        ),
+        shinyjs::useShinyjs(),
+        div(class = "ui text container",
+            vignette_ui("action")
         )
     )
-  )
-)
 
 server <- function(input, output, session){
     
@@ -68,27 +55,6 @@ server <- function(input, output, session){
         } 
     })
     
-    ### Progress bar by user and party
-    observe({
-      req(user())
-      action()
-      
-      total <- 300
-        
-      res <- dplyr::src_sqlite("data/mp.db") %>%
-        dplyr::tbl("com") %>%
-        as_tibble() %>%
-        dplyr::filter(party == input$party) %>%
-        dplyr::filter(user == user()$username) %>%
-        nrow()
-      
-      times <- res %/% total
-      res <- res - times*total
-      
-      shinyjs::runjs(glue::glue("$('#global').progress({ value: <res>, total: <total>});", .open = "<", .close = ">"))
-    })
-    
-    ### Vignette
     log <- reactiveValues(state = 0)
     logstate <- reactive({ log$state })
     
@@ -108,8 +74,7 @@ server <- function(input, output, session){
 
         d <- pairwiseR::get_new_pair(user = user()$username,
                                      con = con,
-                                     pair_mp = pair_mp, party = input$party) %>% glimpse
-
+                                     pair_mp = pair_mp, party = input$party)
         return(d)
     })
 
@@ -120,6 +85,7 @@ server <- function(input, output, session){
         req(user())
         # print(glimpse(user()))
         message(user()$user, " > ", action(), " > ", pageid = pair()$pageid_1, " ", pageid = pair()$pageid_2)
+        message("\n\n")
     })
 
     observeEvent(action(), {
