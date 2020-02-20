@@ -20,20 +20,20 @@ add_user_db <- function(user, password, signed_in, role, debug = F){
 
 #' init_db
 #' @export
-
 init_db <- function(user = NA, path = NA){
   con <- DBI::dbConnect(RSQLite::SQLite(), path)
   
-  if(length(setdiff(DBI::dbListTables(con), c("com", "dk"))) != 0){
+  #if(length(setdiff(DBI::dbListTables(con), c("com", "dk"))) != 0){
+  if(!DBI::dbExistsTable(con,  "com")){
     con %>% DBI::dbWriteTable("com", tibble::tibble(user = user, pageid_1 = NA, pageid_2 = NA, more_left = NA, time = NA, party = NA), overwrite = T)
-    con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA, party = NA), overwrite = T)
   }
+  # con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA, party = NA), overwrite = T)
   
-  existing_users <- con %>% dplyr::tbl("com") %>% dplyr::pull(user) %>% unique
-  if(!user %in% existing_users){
-    con %>% DBI::dbWriteTable("com", tibble::tibble(user = user, pageid_1 = NA, pageid_2 = NA, more_left = NA, time = NA, party = NA), append = T)
-    con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA, party = NA), append = T)
-  }
+  # existing_users <- con %>% dplyr::tbl("com") %>% dplyr::pull(user) %>% unique
+  # if(!user %in% existing_users){
+  #   con %>% DBI::dbWriteTable("com", tibble::tibble(user = user, pageid_1 = NA, pageid_2 = NA, more_left = NA, time = NA, party = NA), append = T)
+  #   con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA, party = NA), append = T)
+  # }
   
   return(con)
 }
