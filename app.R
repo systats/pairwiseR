@@ -3,7 +3,6 @@ pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, D
 # devtools::document()
 # devtools::install()
 # devtools::install_github("systats/shinyuser")
-# ml
 # unlink("/Library/Frameworks/R.framework/Versions/3.6/Resources/library/00LOCK-pairwiseR", recursive = TRUE)
 
 library(shiny)
