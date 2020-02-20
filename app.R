@@ -27,21 +27,30 @@ source("R/vignette_mod.R")
 # library(shinyuser)
 # options(shiny.maxRequestSize=200*1024^2) 
 
-### Needed for user db initialization
+# pairwiseR::init_db("root", "data/mp.db")
 
+### Needed for user db initialization
 ui <- shiny.semantic::semanticPage(
-        shiny::tags$head(
-            shiny::tags$link(rel="stylesheet", href="styles/main.css")
-        ),
-        dashboardHeader(
-            inverted = T, 
-            manager_ui("manager")
-        ),
-        shinyjs::useShinyjs(),
-        div(class = "ui text container",
-            vignette_ui("action")
+  shiny::tags$head(
+    shiny::tags$link(rel="stylesheet", href="styles/main.css")
+  ),
+  dashboardHeader(
+    inverted = T, 
+    manager_ui("manager"),
+    shinyjs::useShinyjs()
+  ),
+  shinyjs::useShinyjs(),
+  div(class = "ui text container",
+    br(),
+    vignette_ui("action"),
+    br(),
+    div(class="ui green progress", id = "global",
+        div(class="bar",
+            div(class="progress")
         )
     )
+  )
+)
 
 server <- function(input, output, session){
     
@@ -59,6 +68,27 @@ server <- function(input, output, session){
         } 
     })
     
+    ### Progress bar by user and party
+    observe({
+      req(user())
+      action()
+      
+      total <- 300
+        
+      res <- dplyr::src_sqlite("data/mp.db") %>%
+        dplyr::tbl("com") %>%
+        as_tibble() %>%
+        dplyr::filter(party == input$party) %>%
+        dplyr::filter(user == user()$username) %>%
+        nrow()
+      
+      times <- res %/% total
+      res <- res - times*total
+      
+      shinyjs::runjs(glue::glue("$('#global').progress({ value: <res>, total: <total>});", .open = "<", .close = ">"))
+    })
+    
+    ### Vignette
     log <- reactiveValues(state = 0)
     logstate <- reactive({ log$state })
     

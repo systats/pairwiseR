@@ -4,7 +4,6 @@ vignette_ui <- function(id){
   ns <- NS(id)  
   
   tagList(
-    br(),
     div(class = "ui grid",
         div(class = "four wide column",
             dropdown("party", choices = c("SPD", "GRUENE", "PDS/LINKE", "CDU/CSU"), value = "SPD")
