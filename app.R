@@ -3,7 +3,12 @@ pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, D
 # devtools::document()
 # devtools::install()
 # devtools::install_github("systats/shinyuser")
-# unlink("/Library/Frameworks/R.framework/Versions/3.6/Resources/library/00LOCK-pairwiseR", recursive = TRUE)
+
+# new <- shinyuser::user$new("data/users")
+# new$username <- "test_1"
+# new$password <- "2020"
+# new$load("root1")
+# new$update()
 
 library(shiny)
 library(shiny.semantic)
@@ -19,15 +24,6 @@ library(RSQLite)
 library(V8)
 
 source("R/vignette_mod.R")
-# 4x3 footer decisions with popups
-# A | B
-# ignore A| ignore B
-# igno re | back
-
-# library(shinyuser)
-# options(shiny.maxRequestSize=200*1024^2) 
-
-### Needed for user db initialization
 
 ui <- shiny.semantic::semanticPage(
         shiny::tags$head(
@@ -78,8 +74,7 @@ server <- function(input, output, session){
 
         d <- pairwiseR::get_new_pair(user = user()$username,
                                      con = con,
-                                     pair_mp = pair_mp, party = input$party) %>% glimpse
-
+                                     pair_mp = pair_mp, party = input$party)
         return(d)
     })
 
@@ -90,6 +85,7 @@ server <- function(input, output, session){
         req(user())
         # print(glimpse(user()))
         message(user()$user, " > ", action(), " > ", pageid = pair()$pageid_1, " ", pageid = pair()$pageid_2)
+        message("\n\n")
     })
 
     observeEvent(action(), {

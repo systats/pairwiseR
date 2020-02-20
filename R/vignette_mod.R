@@ -7,10 +7,10 @@ vignette_ui <- function(id){
     br(),
     div(class = "ui grid",
         div(class = "four wide column",
-            dropdown("party", choices = c("SPD", "GRUENE", "PDS/LINKE", "CDU/CSU"), value = "SPD")
+            dropdown("party", choices = c("all", "SPD", "GRUENE", "PDS/LINKE", "CDU/CSU"), value = "all")
         ),
         div(class = "twelve wide column",
-            span("Welche Abgeordnete ist politisch linker?", style = "font-size:20px;")
+            span("Ihrer Meinung nach, welches Mitglied des Bundestags vertritt eine linkere Position?", style = "font-size:20px;")
         )
     ),
     br(),

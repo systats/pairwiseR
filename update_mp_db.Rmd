@@ -1,0 +1,25 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+pacman::p_load(tidyverse, rvest)
+```
+
+
+```{r}
+page <- "data/Deutscher Bundestag - Biografien.html" %>%
+  read_html()
+
+out <- page %>%
+  html_nodes(".bt-teaser-person-text") %>%
+  imap_dfr(~try(tidyweb::tidy_element(.x, 1)))
+  
+
+
+```
+

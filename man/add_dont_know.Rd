@@ -4,8 +4,7 @@
 \alias{add_dont_know}
 \title{add_dont_know}
 \usage{
-add_dont_know(user = NA, pageid = NA, name = NA, party = NA,
-  con = NULL)
+add_dont_know(user = NA, pageid = NA, name = NA, party = NA, con = NULL)
 }
 \description{
 add_dont_know

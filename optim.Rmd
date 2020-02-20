@@ -1,0 +1,120 @@
+---
+title: "optim"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+
+pacman::p_load(tidyverse, RSQLite, DBI)
+con <- dbConnect(SQLite(), "data/mp.db")
+
+input <- list(party = "SPD")
+user <- "test_1"
+party <- input$party
+par <- 2
+
+pair_mp <- get_pair_matrix(party = "all")
+
+```
+
+## True Data
+
+```{r}
+already <- con %>%
+  dplyr::tbl("com") %>%
+  dplyr::collect(.) %>%
+  dplyr::filter(user == {{user}}) %>%
+  dplyr::filter(party == {{party}})
+
+get_analytically_solved(already, quiet = T, par = 2)
+
+```
+
+
+```{r}
+pageid <- unique(pair_mp$pageid_1)
+
+res <- 0:10 %>%
+  map(~{
+    message(.x)
+    target <- pageid %>%
+      simule_pairs()
+    
+    already <- target %>%
+      sample_n(1)
+    
+    step <- 1
+    while(nrow(already) != nrow(target)){
+      new_pair <- tmp_mp %>%
+        dplyr::anti_join(already, by = c("pageid_1", "pageid_2")) %>%
+        dplyr::sample_n(1)
+      if(nrow(new_pair) == 0){break}
+      
+      out <- new_pair %>%
+        select(contains("pageid")) %>%
+        left_join(target, by = c("pageid_1", "pageid_2"))
+      
+      out <- tibble(pageid_1 = out$pageid_2, 
+                    pageid_2 = out$pageid_1, 
+                    more_left = -out$more_left) %>%
+        bind_rows(out) %>%
+        mutate(step = !!step)
+      
+      already <- bind_rows(already, out)
+      solved <- get_analytically_solved(already, quiet = T, par = .x) %>%
+        mutate(step = !!step)
+      already <- bind_rows(already, solved)
+      step <- step + 1
+    }
+    return(already)
+  })
+
+max_step <- res %>%
+  map_dbl(~{
+    max(.x$step, na.rm = T)
+  })
+
+tibble(par = 0:10, max_step)
+
+already %>%
+  count(step) %>%
+  filter(step != 50) %>%
+  ggplot(aes(x = step, y = n)) + geom_line()
+
+
+```
+
+
+
+```{r}
+# analytically_solved <- function(pageid_1, pageid_2, par, already){
+#   a <- already %>% filter(pageid_1 == .x$pageid_1)
+#   b <- already %>% filter(pageid_1 == .x$pageid_2)
+#   
+#   left_a <- a %>%
+#     filter(more_left == 1) %>%
+#     pull(pageid_2)
+#   
+#   right_a <- a %>%
+#     filter(more_left == -1) %>%
+#     pull(pageid_2)
+#   
+#   left_b <- b %>%
+#     filter(more_left == 1) %>%
+#     pull(pageid_2)
+#   
+#   right_b <- b %>%
+#     filter(more_left == -1) %>%
+#     pull(pageid_2)
+#   
+#   out <- length(intersect(left_a, right_b)) > par | length(intersect(left_b, right_a)) > par
+#   
+#   return(out)
+# }
+```
+
