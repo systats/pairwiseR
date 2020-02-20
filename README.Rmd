@@ -20,7 +20,7 @@ devtools::load_all()
 party <- "SPD"
 
 # This initialises the database, use argument force to overwrite existing database
-con <- init_db(user = "ben", path = "data/mp.db")
+con <- init_db(user = "ben", path = "data/mp.db", force = T)
 
 # Extracting all potential pairs of MP
 pair_mp <- get_pair_matrix(party = party)
