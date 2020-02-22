@@ -2,10 +2,10 @@
 % Please edit documentation in R/main.R
 \name{init_db}
 \alias{init_db}
-\title{add_user_db}
+\title{init_db}
 \usage{
 init_db(user = NA, path = NA)
 }
 \description{
-add_user_db
+init_db
 }

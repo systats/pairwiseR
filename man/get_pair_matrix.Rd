@@ -4,7 +4,7 @@
 \alias{get_pair_matrix}
 \title{get_pair_matrix}
 \usage{
-get_pair_matrix(party = "leader")
+get_pair_matrix()
 }
 \description{
 get_pair_matrix

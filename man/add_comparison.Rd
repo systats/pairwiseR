@@ -12,9 +12,8 @@ add_comparison(
   name_2 = NA,
   more_left = NA,
   time = NA,
-  party = NA,
   con = NULL,
-  par_anal = 2
+  par_anal = 3
 )
 }
 \description{
