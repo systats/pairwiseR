@@ -4,7 +4,7 @@
 \alias{get_already}
 \title{get_already}
 \usage{
-get_already(con, user, party = "all")
+get_already(con, user)
 }
 \description{
 get_already
