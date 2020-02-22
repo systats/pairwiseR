@@ -70,32 +70,37 @@ page <- "https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundes
 
 wiki_pages <- page %>%
   html_nodes("table") %>%
-  .[4] %>%
-  html_nodes("tr") %>%
-  map_dfr(~{
-    out <- try({
-      out <- tidyweb::tidy_element(.x, 3)
-      
-      links <- out %>%
-        filter(.id %in% c("1_2_1")) %>%
-        select(title, href) %>%
-        mutate(href = str_remove(href, "/wiki/") %>%
-                 map_chr(URLdecode))
-      
-      party <- out %>%
-        filter(.id %in% c("1_4")) %>%
-        select(text)
-      
-      out <- bind_cols(links, party)
-    })
-    
-    if(!inherits(out, "try-error")){
-      return(out)
-    }
+  .[4:5] %>%
+  map(~{
+    .x %>%
+      html_nodes("tr") %>%
+      map_dfr(~{
+        out <- try({
+          out <- tidyweb::tidy_element(.x, 3)
+          
+          links <- out %>%
+            filter(.id %in% c("1_2_1")) %>%
+            select(title, href) %>%
+            mutate(href = str_remove(href, "/wiki/") %>%
+                     map_chr(URLdecode))
+          
+          party <- out %>%
+            filter(.id %in% c("1_4")) %>%
+            select(text)
+          
+          out <- bind_cols(links, party)
+        })
+        
+        if(!inherits(out, "try-error")){
+          return(out)
+        }
+      })
   })
 
 
-views_raw <- wiki_pages$href %>%
+views_raw <- wiki_pages %>%
+  reduce(bind_rows) %>%
+  pull(href) %>%
   imap(~{
     message(.y)
     out <- try(
@@ -125,6 +130,7 @@ views <- views_raw %>%
   })
 
 wiki_info <- wiki_pages %>%
+  reduce(bind_rows) %>%
   mutate(party = str_trim(text)) %>%
   left_join(views, by = c("href" = "mp")) %>%
   select(-text) %>%
@@ -136,6 +142,9 @@ save(wiki_info, file = "data/wiki_info_lp19.Rdata")
 
 
 ```{r}
+load("data/mp_bundestaginfo_lp19.Rdata")
+load("data/wiki_info_lp19.Rdata")
+
 a <- mp_info %>% 
   mutate(party = name %>%
            str_remove("\n.*$") %>%
@@ -152,10 +161,12 @@ b <- wiki_info %>%
     party %in% "Linke" ~ "Die Linke",
     T ~ party
   )) %>%
+  mutate(title = title %>%
+           str_remove("\\((.|\\s)+\\)")) %>%
   nest(-party) %>%
   rename(data_b = data)
 
-merged_data <- a %>%
+mp <- a %>%
   left_join(b) %>%
   split(1:nrow(.)) %>%
   map_dfr(~{
@@ -168,42 +179,5 @@ merged_data <- a %>%
       mutate(party = .x$party)
   })
 
-merged_data %>%
-  arrange(-dist) %>%
-  select(name, title, dist, party)
-
-
-
+save(mp, file = "data/mp_lp19.Rdata")
 ```
-
-
-```{r}
-c("Dr. h. c. (Univ Kyiv) Hans Michelbach", 
-  "Prof. Dr. Karl Lauterbach", 
-  "Berengar Elsner von Gronow",
-  "Dr. Ursula von der Leyen",
-  "Prof. Dr. Martin Neumann", 
-  "Dr. Christoph Hoffmann", 
-  "Dr. Ralf Brauksiepe", 
-  "Volkmar Vogel (Kleinsaara)", 
-  "Dr. Jürgen Martens", 
-  "Dagmar Schmidt (Wetzlar)", 
-  "Dr. Barbara Hendricks", 
-  "Ulla Schmidt (Aachen)", 
-  "Dr. Christian Wirth", 
-  "Stefan Müller (Erlangen)", 
-  "Dr. Gerhard Schick", 
-  "Dr. Jens Zimmermann", 
-  "Dr. Rainer Kraft", 
-  "Dr. Klaus-Peter Schulze", 
-  "Dr. Volker Ullrich", 
-  "Benjamin Strasser", 
-  "Dr. Bernd Buchholz", 
-  "Dr. Bettina Hoffmann", 
-  "Dr. Tobias Lindner", 
-  "Kerstin Andreae", 
-  "Dr. Carola Reimann", 
-  "Dr. Stefan Kaufmann", 
-  "Dr. Stephan Harbarth")
-```
-

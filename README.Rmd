@@ -33,10 +33,6 @@ d <- get_new_pair(user = "ben", con = con) %>% glimpse
 add_dont_know(user = "ben", pageid = d$pageid_1, name = d$name_1, party = d$party_1)
 
 
-# Get a new pair, but only update the first name. 
-d <- get_new_pair(user = "ben", con = con, pageid_2 = d$pageid_2) %>% glimpse
-# Same with the second name
-d <- get_new_pair(user = "ben", con = con, pageid_1 = d$pageid_1) %>% glimpse
 
 # Add comparison, more_left should be either : -1 (1 > 2) ; 0 (same position) ; 1 (2 > 1)
 add_comparison(user = "ben", pageid_1 = d$pageid_1, pageid_2 = d$pageid_2, 
@@ -88,9 +84,20 @@ mp <- data %>%
   ungroup %>%
   glimpse
 
-usethis::use_data(mp, overwrite = T)
-mp
+# usethis::use_data(mp, overwrite = T)
+# mp
 ```
 
+```{r}
+mp_data <- get(load("data/mp_lp19.Rdata"))
+mp <- mp_data %>%
+  transmute(pageid = 1:n(), 
+         name = str_trim(name), 
+         party = party, 
+         image_url = img_link, 
+         traffic = traffic)
+  
+usethis::use_data(mp, overwrite = T)
+```
 
 
