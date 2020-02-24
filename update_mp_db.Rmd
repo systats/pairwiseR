@@ -7,19 +7,177 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 
-pacman::p_load(tidyverse, rvest)
+pacman::p_load(tidyverse, rvest, pageviews, furrr)
+plan(multisession)
+
+
 ```
 
 
+## Bundestag Data
+
 ```{r}
+get_info <- function(url){
+  pag <- xml2::read_html(url)
+  
+  name <- pag %>%
+    html_node(".bt-biografie-name") %>%
+    html_children() %>%
+    html_text(trim = T) %>%
+    .[[1]]
+  
+  img_link <- pag %>%
+    html_nodes(".bt-bild-standard") %>%
+    html_nodes("img") %>%
+    map_chr(html_attr, "data-img-md-normal") %>%
+    .[1] %>%
+    paste0("https://www.bundestag.de", .)
+  
+  tibble(name, img_link)
+}
+
 page <- "data/Deutscher Bundestag - Biografien.html" %>%
   read_html()
 
 out <- page %>%
-  html_nodes(".bt-teaser-person-text") %>%
-  imap_dfr(~try(tidyweb::tidy_element(.x, 1)))
-  
+  html_nodes(".bt-module-content-wrap") %>%
+  head(10) %>%
+  imap_dfr(~{
+    message(.y)
+    out <- try(tidyweb::tidy_element(.x, 10))
+    if(inherits(out, "try-error")) return(tibble) else return(out)
+  })
 
+mb_website <- out %>%
+  filter(str_detect(href, "biografien/")) %>%
+  pull(href)
+
+mp_info <- mb_website %>%
+  future_map_dfr(~{
+    # message(.y)
+    out <- try(get_info(.x))
+    if(inherits(out, "try-error")) return(tibble()) else return(out)
+  }, .progress = T)
+
+save(mp_info, file = "data/mp_bundestaginfo_lp19.Rdata")
+```
+
+## Wikipedia Traffic Data
+
+```{r}
+page <- "https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_(19._Wahlperiode)" %>%
+  read_html
+
+wiki_pages <- page %>%
+  html_nodes("table") %>%
+  .[4:5] %>%
+  map(~{
+    .x %>%
+      html_nodes("tr") %>%
+      map_dfr(~{
+        out <- try({
+          out <- tidyweb::tidy_element(.x, 3)
+          
+          links <- out %>%
+            filter(.id %in% c("1_2_1")) %>%
+            select(title, href) %>%
+            mutate(href = str_remove(href, "/wiki/") %>%
+                     map_chr(URLdecode))
+          
+          party <- out %>%
+            filter(.id %in% c("1_4")) %>%
+            select(text)
+          
+          out <- bind_cols(links, party)
+        })
+        
+        if(!inherits(out, "try-error")){
+          return(out)
+        }
+      })
+  })
+
+
+views_raw <- wiki_pages %>%
+  reduce(bind_rows) %>%
+  pull(href) %>%
+  imap(~{
+    message(.y)
+    out <- try(
+      article_pageviews(
+        project = "de.wikipedia",
+        article = .x, 
+        start = "2019010100", 
+        end = "2020010100",
+        user_type = "user")
+    )
+    
+    if(inherits(out, "try-error")){
+      message(.x)
+    } else {
+      return(out)
+    }
+  })
+
+views <- views_raw %>%
+  compact %>%
+  map_dfr(~{
+    .x %>%
+      summarise(
+        mp = unique(article), 
+        traffic = sum(views)
+      )
+  })
+
+wiki_info <- wiki_pages %>%
+  reduce(bind_rows) %>%
+  mutate(party = str_trim(text)) %>%
+  left_join(views, by = c("href" = "mp")) %>%
+  select(-text) %>%
+  glimpse
+
+save(wiki_info, file = "data/wiki_info_lp19.Rdata")
 
 ```
 
+
+```{r}
+load("data/mp_bundestaginfo_lp19.Rdata")
+load("data/wiki_info_lp19.Rdata")
+
+a <- mp_info %>% 
+  mutate(party = name %>%
+           str_remove("\n.*$") %>%
+           str_extract("(?<=, )(.|\n)*?$"), 
+         name = str_remove(name, ",(\n|.)+") %>%
+           str_remove_all("(Dr\\.)|(h\\. c\\. )|(Prof\\. )|(\\((.|\\s)+\\))")) %>%
+  nest(-party)
+
+b <- wiki_info %>% 
+  mutate(party = case_when(
+    party %in% c("CDU", "CSU") ~ "CDU/CSU",
+    party %in% "parteilos" ~ "fraktionslos", 
+    party %in% "Grüne" ~ "Bündnis 90/Die Grünen",
+    party %in% "Linke" ~ "Die Linke",
+    T ~ party
+  )) %>%
+  mutate(title = title %>%
+           str_remove("\\((.|\\s)+\\)")) %>%
+  nest(-party) %>%
+  rename(data_b = data)
+
+mp <- a %>%
+  left_join(b) %>%
+  split(1:nrow(.)) %>%
+  map_dfr(~{
+    expand_grid(.x$data[[1]], .x$data_b[[1]]) %>%
+      mutate(dist = stringdist::stringdist(name, title)) %>%
+      group_by(name) %>% 
+      arrange(dist) %>%
+      slice(1) %>%
+      ungroup %>%
+      mutate(party = .x$party)
+  })
+
+save(mp, file = "data/mp_lp19.Rdata")
+```
