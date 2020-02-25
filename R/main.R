@@ -31,9 +31,16 @@ add_user <- function(user, password){
 #' get_pair_matrix
 #' @export
 
-get_pair_matrix <- function(){
+get_pair_matrix <- function(n_mp = NULL){
+  if(!is.null(n_mp)){
+    tmp_mp <- pairwiseR::mp %>%
+      arrange(desc(traffic)) %>%
+      slice(1:!!n_mp)
+  } else {
+    tmp_mp <- pairwiseR::mp
+  }
   
-  pair_mps <- tidyr::expand_grid(pageid_1 = mp$pageid, pageid_2 = mp$pageid) %>%
+  pair_mps <- tidyr::expand_grid(pageid_1 = tmp_mp$pageid, pageid_2 = tmp_mp$pageid) %>%
     dplyr::filter(pageid_1 != pageid_2) %>%
     dplyr::left_join(dplyr::select(pairwiseR::mp, pageid_1 = pageid, name_1 = name), by = "pageid_1") %>%
     dplyr::left_join(dplyr::select(pairwiseR::mp, pageid_2 = pageid, name_2 = name), by = "pageid_2")
@@ -165,7 +172,8 @@ get_analytically_solved <- function(already, quiet = T, par = 3){
     dplyr::mutate(n_inter = purrr::map2_dbl(left, right, ~length(intersect(.x, .y)))) %>%
     dplyr::filter(n_inter > par) %>%
     dplyr::select(contains("pageid")) %>%
-    dplyr::mutate(more_left = -1) 
+    dplyr::mutate(more_left = -1) %>%
+    dplyr::anti_join(already, by = c("pageid_1", "pageid_2"))
   
   if(!quiet){message(glue::glue("Could discard {nrow(out)} analytically"))}
   sym_out <- tibble::tibble(pageid_1 = out$pageid_2, 
@@ -173,7 +181,7 @@ get_analytically_solved <- function(already, quiet = T, par = 3){
                     more_left = -out$more_left) 
   
   
-  return(dply::bind_rows(out, sym_out))
+  return(dplyr::bind_rows(out, sym_out))
   
 }
 

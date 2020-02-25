@@ -10,15 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 
-pacman::p_load(tidyverse, RSQLite, DBI)
+pacman::p_load(tidyverse, RSQLite, DBI, pairwiseR)
 con <- dbConnect(SQLite(), "data/mp.db")
-
-input <- list(party = "SPD")
 user <- "test_1"
-party <- input$party
-par <- 2
+par <- 3
 
-pair_mp <- get_pair_matrix(party = "all")
+
 
 ```
 
@@ -37,38 +34,45 @@ get_analytically_solved(already, quiet = T, par = 2)
 
 
 ```{r}
+pair_mp <- get_pair_matrix(n_mp = 300)
 pageid <- unique(pair_mp$pageid_1)
 
-res <- 0:10 %>%
+res <- 0:5 %>%
   map(~{
     message(.x)
     target <- pageid %>%
-      simule_pairs()
+      sample_frac(.7) %>%
+      simule_ranking()
     
     already <- target %>%
       sample_n(1)
     
     step <- 1
     while(nrow(already) != nrow(target)){
-      new_pair <- tmp_mp %>%
+      utils::flush.console()
+      cat("\rStep: ", step)
+      new_pair <- pair_mp %>%
         dplyr::anti_join(already, by = c("pageid_1", "pageid_2")) %>%
-        dplyr::sample_n(1)
+        dplyr::sample_n(min(5, nrow(.)))
       if(nrow(new_pair) == 0){break}
       
-      out <- new_pair %>%
+      answer <- new_pair %>%
         select(contains("pageid")) %>%
         left_join(target, by = c("pageid_1", "pageid_2"))
       
-      out <- tibble(pageid_1 = out$pageid_2, 
-                    pageid_2 = out$pageid_1, 
-                    more_left = -out$more_left) %>%
-        bind_rows(out) %>%
+      out <- tibble(pageid_1 = answer$pageid_2, 
+                    pageid_2 = answer$pageid_1, 
+                    more_left = -answer$more_left) %>%
+        bind_rows(answer) %>%
         mutate(step = !!step)
       
       already <- bind_rows(already, out)
-      solved <- get_analytically_solved(already, quiet = T, par = .x) %>%
+      solved <- get_analytically_solved(already, quiet = F, par = .x) %>%
         mutate(step = !!step)
-      already <- bind_rows(already, solved)
+      already <- bind_rows(already, solved) %>%
+        distinct(pageid_1, pageid_2, .keep_all = T) 
+      
+      message(nrow(already), " were solved in total")
       step <- step + 1
     }
     return(already)
@@ -85,7 +89,6 @@ already %>%
   count(step) %>%
   filter(step != 50) %>%
   ggplot(aes(x = step, y = n)) + geom_line()
-
 
 ```
 
