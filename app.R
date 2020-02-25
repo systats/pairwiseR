@@ -22,7 +22,9 @@ devtools::load_all()
 # library(RSQLite)
 # library(V8)
 
-
+library(shinyuser)
+library(googlesheets4)
+sheets_deauth()
 
 #' get_pair_matrix
 #' @export
@@ -30,13 +32,19 @@ ui <- shiny.semantic::semanticPage(
     shiny::tags$head(
         shiny::tags$link(rel="stylesheet", href="styles/main.css")
     ),
-    dashboardHeader(
-        inverted = T, 
-        shinyuser::manager_ui("manager")
-    ),
+    # dashboardHeader(
+    #     inverted = T, 
+    #     shinyuser::manager_ui("manager")
+    # ),
     shinyjs::useShinyjs(),
     div(class = "ui text container",
-        vignette_ui("action")
+        vignette_ui("action"),
+        br(),
+        div(class="ui progress", id = "pro",
+            div(class="bar",
+                div(class="progress")
+            )
+        )
     )
 )
 
@@ -46,7 +54,9 @@ server <- function(input, output, session){
     party <- "all"
     
     ### User authentification
-    user <- callModule(shinyuser::login_server, "user")
+    user_sheet <- "https://docs.google.com/spreadsheets/d/1ZbSSxaMuf0fV5_2exz69ahOMZH46bNwlkXSKyOjYD5w/edit?usp=sharing"
+    user <- callModule(login_server, "user", user_sheet)
+    
     ### User managment
     callModule(shinyuser::manager_server, "manager", user)
     ### Authorized content
@@ -58,6 +68,43 @@ server <- function(input, output, session){
             shinyuser::login_ui("user", "", signin = T, recover = F, label_login = "User", label_pw = "Passwort")
         } 
     })
+    
+    observe({
+        req(user())
+        action()
+        value <- pairwiseR::init_db(user = user()$username, path = "data/mp.db")   %>%
+            dplyr::tbl("com") %>%
+            dplyr::as_tibble() %>%
+            dplyr::filter(user == user()$username) %>%
+            dplyr::filter(type == "user") %>%
+            nrow
+        #value <- nrow(get_already(con, user())) #%/% 2
+        shinyjs::runjs(glue::glue("$('#pro').progress({value: <value %/% 2>, total: 500});", .open = "<", .close = ">"))
+    })
+    
+    
+    
+    # ### Progress bar by user and party
+    # observe({
+    #     req(user())
+    #     action()
+    #     
+    #     total <- 300 # default
+    #     
+    #     res <- dplyr::src_sqlite("data/mp.db") %>%
+    #         dplyr::tbl("com") %>%
+    #         as_tibble() %>%
+    #         dplyr::filter(party == input$party) %>%
+    #         dplyr::filter(user == user()$username) %>%
+    #         nrow()
+    #     
+    #     times <- res %/% total
+    #     res <- res - times*total
+    #     
+    #     shinyjs::runjs(glue::glue("$('#global').progress({ value: <res>, total: <total>});", .open = "<", .close = ">"))
+    # })
+    
+    
     
     log <- reactiveValues(state = 0)
     logstate <- reactive({ log$state })
