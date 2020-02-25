@@ -5,17 +5,20 @@ vignette_ui <- function(id){
   
   tagList(
     br(),
-    div(class = "ui grid",
-        # div(class = "four wide column",
-        #     dropdown("party", choices = c("all", "SPD", "GRUENE", "PDS/LINKE", "CDU/CSU"), value = "all")
-        # ),
-        div(class = "sixteen wide column",
-            span("Welches dieser zwei Mitglieder des Bundestags vertritt die linkere Position?", style = "font-size:20px;")
+    span("Welches dieser zwei Mitglieder des Bundestags vertritt die linkere Position?", style = "font-size:20px;"),
+    div(class = "sixteen wide column",
+        a(class="ui fluid button action-button", id = ns("ab"), href = "#", 
+          div(class="content",
+              HTML('<center>'),
+              div(class = "meta", "Gleich"),
+              HTML('</center>')
+          )
         )
     ),
     br(),
-    div(class = "ui grid",
-        div(class = "six wide column",
+    br(),
+    div(class = "ui two column middle aligned centerd grid",
+        div(class = "column",
             a(class="ui green card action-button", id = ns("a"), href = "#",
               div(class="content",
                   uiOutput(ns("left"))
@@ -24,18 +27,7 @@ vignette_ui <- function(id){
 
             )
         ),
-        div(class = "four wide column",
-            a(class="ui card action-button", id = ns("ab"), href = "#", 
-              div(class="content",
-                  br(),
-                  HTML('<center>'),
-                  div(class = "meta", "Gleich"),
-                  HTML('</center>'),
-                  br()
-              )
-            )
-        ),
-        div(class = "six wide column",
+        div(class = "column",
             a(class="ui red card action-button", id = ns("b"), href = "#",
               div(class="content",
                   uiOutput(ns("right"))
@@ -50,7 +42,7 @@ vignette_ui <- function(id){
     div(class = "ui buttons",style = "display: flex; justify-content: center; ",
   
        actionButton(ns("ignore_a"), label = "Unbekannt", class = "big basic green ui button"),
-       actionButton(ns("ignore"), label = "Beide", class = "big ui button"),    
+       #actionButton(ns("ignore"), label = "Beide", class = "big ui button"),    
        actionButton(ns("ignore_b"), label = "Unbekannt", class = "big basic red ui button")
 
     )
