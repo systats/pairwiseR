@@ -32,10 +32,10 @@ ui <- shiny.semantic::semanticPage(
     shiny::tags$head(
         shiny::tags$link(rel="stylesheet", href="styles/main.css")
     ),
-    dashboardHeader(
-        inverted = T, 
-        shinyuser::manager_ui("manager")
-    ),
+    # dashboardHeader(
+    #     inverted = T, 
+    #     shinyuser::manager_ui("manager")
+    # ),
     shinyjs::useShinyjs(),
     div(class = "ui text container",
         vignette_ui("action"),
