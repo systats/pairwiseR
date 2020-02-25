@@ -32,10 +32,10 @@ ui <- shiny.semantic::semanticPage(
     shiny::tags$head(
         shiny::tags$link(rel="stylesheet", href="styles/main.css")
     ),
-    dashboardHeader(
-        inverted = T, 
-        shinyuser::manager_ui("manager")
-    ),
+    # dashboardHeader(
+    #     inverted = T, 
+    #     shinyuser::manager_ui("manager")
+    # ),
     shinyjs::useShinyjs(),
     div(class = "ui text container",
         vignette_ui("action"),
@@ -76,9 +76,10 @@ server <- function(input, output, session){
             dplyr::tbl("com") %>%
             dplyr::as_tibble() %>%
             dplyr::filter(user == user()$username) %>%
+            dplyr::filter(type == "user") %>%
             nrow
         #value <- nrow(get_already(con, user())) #%/% 2
-        shinyjs::runjs(glue::glue("$('#pro').progress({value: <value>, total: 500});", .open = "<", .close = ">"))
+        shinyjs::runjs(glue::glue("$('#pro').progress({value: <value %/% 2>, total: 500});", .open = "<", .close = ">"))
     })
     
     
