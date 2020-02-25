@@ -66,7 +66,7 @@ vignette_ui <- function(id){
 #' vignette_server
 #' @export
 vignette_server <- function(input, output, session, pair){
-
+  
   
   output$left <- renderUI({
     tagList(

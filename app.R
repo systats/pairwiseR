@@ -38,7 +38,13 @@ ui <- shiny.semantic::semanticPage(
     ),
     shinyjs::useShinyjs(),
     div(class = "ui text container",
-        vignette_ui("action")
+        vignette_ui("action"),
+        br(),
+        div(class="ui progress", id = "pro",
+            div(class="bar",
+                div(class="progress")
+            )
+        )
     )
 )
 
@@ -62,6 +68,19 @@ server <- function(input, output, session){
             shinyuser::login_ui("user", "", signin = T, recover = F, label_login = "User", label_pw = "Passwort")
         } 
     })
+    
+    observe({
+        req(user())
+        action()
+        value <- pairwiseR::init_db(user = user()$username, path = "data/mp.db")   %>%
+            dplyr::tbl("com") %>%
+            dplyr::as_tibble() %>%
+            dplyr::filter(user == user()$username) %>%
+            nrow
+        #value <- nrow(get_already(con, user())) #%/% 2
+        shinyjs::runjs(glue::glue("$('#pro').progress({value: <value>, total: 500});", .open = "<", .close = ">"))
+    })
+    
     
     
     # ### Progress bar by user and party
