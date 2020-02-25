@@ -173,7 +173,7 @@ get_analytically_solved <- function(already, quiet = T, par = 3){
                     more_left = -out$more_left) 
   
   
-  return(dply::bind_rows(out, sym_out))
+  return(dplyr::bind_rows(out, sym_out))
   
 }
 
