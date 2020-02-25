@@ -29,7 +29,7 @@ vignette_ui <- function(id){
               div(class="content",
                   br(),
                   HTML('<center>'),
-                  div(class = "meta", "Gleich"),
+                  div(class = "meta", "Gleiche Position"),
                   HTML('</center>'),
                   br()
               )
