@@ -10,7 +10,7 @@ vignette_ui <- function(id){
         a(class="ui fluid button action-button", id = ns("ab"), href = "#", 
           div(class="content",
               HTML('<center>'),
-              div(class = "meta", "Gleich"),
+              div(class = "meta", "Gleiche Position"),
               HTML('</center>')
           )
         )
