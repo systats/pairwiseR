@@ -31,7 +31,7 @@ add_user <- function(user, password){
 #' get_pair_matrix
 #' @export
 
-get_pair_matrix <- function(n_mp = NULL){
+get_pair_matrix <- function(n_mp = NULL, pageid_1 = NULL, pageid_2 = NULL){
   if(!is.null(n_mp)){
     tmp_mp <- pairwiseR::mp %>%
       arrange(desc(traffic)) %>%
@@ -44,6 +44,21 @@ get_pair_matrix <- function(n_mp = NULL){
     dplyr::filter(pageid_1 != pageid_2) %>%
     dplyr::left_join(dplyr::select(pairwiseR::mp, pageid_1 = pageid, name_1 = name), by = "pageid_1") %>%
     dplyr::left_join(dplyr::select(pairwiseR::mp, pageid_2 = pageid, name_2 = name), by = "pageid_2")
+  
+  if(!is.null(pageid_1) ){
+    if(pageid_1 %in% pair_mps$pageid_1){
+      pair_mps <- pair_mps %>%
+        filter(pageid_1 == !!pageid_1)
+    }
+  } else {
+    if(!is.null(pageid_2) ){
+      if(pageid_2 %in% pair_mps$pageid_2){
+        pair_mps <- pair_mps %>%
+          filter(pageid_2 == !!pageid_2)
+      }
+    }
+  }
+  
   
   return(pair_mps)
   
@@ -177,8 +192,8 @@ get_analytically_solved <- function(already, quiet = T, par = 3){
   
   if(!quiet){message(glue::glue("Could discard {nrow(out)} analytically"))}
   sym_out <- tibble::tibble(pageid_1 = out$pageid_2, 
-                    pageid_2 = out$pageid_1, 
-                    more_left = -out$more_left) 
+                            pageid_2 = out$pageid_1, 
+                            more_left = -out$more_left) 
   
   
   return(dplyr::bind_rows(out, sym_out))
