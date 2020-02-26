@@ -6,13 +6,13 @@ init_db <- function(user = NA, path = NA){
   
   if(length(setdiff(c("com", "dk"), DBI::dbListTables(con))) != 0){
     con %>% DBI::dbWriteTable("com", tibble::tibble(user = user, pageid_1 = NA, pageid_2 = NA, more_left = NA, time = NA, type = NA), overwrite = T)
-    con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA), overwrite = T)
+    con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA, time = NA), overwrite = T)
   }
   
   existing_users <- con %>% dplyr::tbl("com") %>% dplyr::pull(user) %>% unique
   if(!user %in% existing_users){
     con %>% DBI::dbWriteTable("com", tibble::tibble(user = user, pageid_1 = NA, pageid_2 = NA, more_left = NA, time = NA, type = NA), append = T)
-    con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA), append = T)
+    con %>% DBI::dbWriteTable("dk", tibble::tibble(user = user, pageid = NA, name = NA, time =), append = T)
   }
   
   return(con)
@@ -128,7 +128,7 @@ get_new_pair <- function(user = NA, con = NA, pair_mp = NULL){
 
 add_dont_know <- function(user = NA, pageid = NA, name = NA, con = NULL){
   message(name, " won't appear anymore")
-  con %>% DBI::dbWriteTable("dk", tibble::tibble(user, pageid, name), append = T)
+  con %>% DBI::dbWriteTable("dk", tibble::tibble(user, pageid, name, time = as.numeric(lubridate::now())), append = T)
 }
 
 
@@ -216,6 +216,59 @@ simule_ranking <- function(pageid){
     dplyr::mutate(more_left = ifelse(rank_1 > rank_2, 1, -1)) %>%
     dplyr::select(-contains("rank"))
   
+}
+
+#' remove_last_action
+#' @export
+remove_last_action <- function(con, user){
+  
+  com_time <- con %>%
+    dplyr::tbl("com") %>%
+    dplyr::filter(user == !!user & type == "user") %>%
+    dplyr::filter(time == max(time, na.rm = T)) %>%
+    dplyr::collect()
+  
+  
+  dk_time <- con %>%
+    dplyr::tbl("dk") %>%
+    dplyr::filter(user == !!user) %>%
+    dplyr::filter(time == max(time, na.rm = T)) %>%
+    dplyr::collect()
+  
+  if(nrow(dk_time) == 0 & nrow(com_time) == 0){
+    message("No action to remove")
+    return()
+  }
+  
+  if(max(com_time$time, na.rm = T) > max(dk_time$time, na.rm = T)){
+    
+    message(glue::glue("Removing comparison between {com_time$pageid_1[1]} and {com_time$pageid_2[1]}"))
+    
+    com_time %>%
+      split(1:nrow(.)) %>% 
+      purrr::walk(~{
+        
+        query <- glue::glue_sql("DELETE FROM com
+                          WHERE pageid_1 = {.x$pageid_1} AND pageid_2 = {.x$pageid_2};", .con = con)
+        RSQLite::dbExecute(con, query)
+      })
+    
+    return(com_time)
+    
+  } else {
+    
+    message(glue::glue("Removing ingoring {dk_time$pageid}"))
+    
+    dk_time %>%
+      split(1:nrow(.)) %>% 
+      purrr::walk(~{
+        query <- glue::glue_sql("DELETE FROM dk
+                          WHERE pageid = {.x$pageid};", .con = con)
+        RSQLite::dbExecute(con, query)
+      })
+    
+    return(dk_time)
+  }
 }
 
 #' add_user_db

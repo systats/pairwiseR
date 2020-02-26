@@ -125,7 +125,7 @@ server <- function(input, output, session){
         return(new_pair)
     })
     
-    action <- callModule(vignette_server, "action", pair)
+    action <- callModule(vignette_server, "action", pair, user = user()$username)
     
     observe({
         req(action())
@@ -140,6 +140,11 @@ server <- function(input, output, session){
         if(!is.null(.GlobalEnv$next_pageid_2)){.GlobalEnv$next_pageid_2 <- NULL}
         
         con <- pairwiseR::init_db(user = user()$username, path = "data/mp.db") #, force = T
+        
+        # if(action() == "undo"){
+        #     removed <- con %>%
+        #         remove_last_action(user = user()$username)
+        # }
         
         if(stringr::str_detect(action(), "ignore")){
             if(stringr::str_detect(action(), "a")){
