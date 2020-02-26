@@ -4,7 +4,7 @@
 \alias{get_pair_matrix}
 \title{get_pair_matrix}
 \usage{
-get_pair_matrix()
+get_pair_matrix(n_mp = NULL, pageid_1 = NULL, pageid_2 = NULL)
 }
 \description{
 get_pair_matrix
