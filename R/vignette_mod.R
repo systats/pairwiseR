@@ -19,7 +19,7 @@ vignette_ui <- function(id){
     br(),
     div(class = "ui two column middle aligned centerd grid",
         div(class = "column",
-            a(class="ui grey card action-button", id = ns("a"), href = "#",
+            a(class="ui card action-button", id = ns("a"), href = "#",
               div(class="content",
                   uiOutput(ns("left"))
               ),
@@ -28,7 +28,7 @@ vignette_ui <- function(id){
             )
         ),
         div(class = "column",
-            a(class="ui grey card action-button", id = ns("b"), href = "#",
+            a(class="ui card action-button", id = ns("b"), href = "#",
               div(class="content",
                   uiOutput(ns("right"))
               ),
@@ -41,10 +41,9 @@ vignette_ui <- function(id){
     br(),
     div(class = "ui buttons",style = "display: flex; justify-content: center; ",
   
-       actionButton(ns("ignore_a"), label = "Unbekannt", class = "big basic grey ui button"),
+       actionButton(ns("ignore_a"), label = "Unbekannt", class = "big basic ui button"),
        #actionButton(ns("ignore"), label = "Beide", class = "big ui button"),    
-       actionButton(ns("ignore_b"), label = "Unbekannt", class = "big basic grey ui button")
-
+       actionButton(ns("ignore_b"), label = "Unbekannt", class = "big basic ui button")
     ), 
     div(class = "ui buttons",style = "display: flex; justify-content: center; ",
   
