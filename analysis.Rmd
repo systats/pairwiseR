@@ -1,0 +1,62 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(tidyverse)
+con <- dbConnect(SQLite(), "data/mp.db")
+
+get_unique_comp <- function(dt){
+  dt %>%
+    mutate(tmp_1 = pmax(pageid_1, pageid_2), 
+           tmp_2 = pmin(pageid_1, pageid_2)) %>%
+    distinct(tmp_1, tmp_2, .keep_all = T) %>%
+    select(-contains("tmp")) 
+
+}
+
+dt <- con %>%
+  tbl("com") %>%
+  filter(user == "symon") %>%
+  collect
+```
+
+
+```{r setup, include=FALSE}
+data <- dt %>%
+  get_unique_comp %>%
+  arrange(time) %>%
+  mutate(time = lubridate::as_datetime(time)) %>%
+  mutate(time_comp =  time - lag(time, 1))
+  
+data %>%
+  filter(time_comp < 120) %>%
+  ggplot(aes(x = time_comp)) + geom_density()
+
+
+```
+
+```{r}
+
+model_data <- dt %>%
+  filter(more_left != 0) %>%
+  mutate(outcome = more_left == 1) %>%
+  select(pageid = pageid_1, outcome) %>%
+  left_join(pairwiseR::mp, by = c("pageid")) %>%
+  mutate(pageid = as.character(pageid))
+
+fit <- glm(outcome ~ pageid, data = model_data, family = "binomial")
+fit <- lm(outcome ~ pageid, data = model_data)
+
+
+broom::tidy(fit) %>% 
+  mutate(pageid = as.numeric(str_extract(term, "\\d+"))) %>%
+  left_join(pairwiseR::mp, by = c("pageid"))  %>%
+  ggplot(aes(x = estimate)) + geom_density() + facet_wrap(~party, scales = "free_y")
+
+
+```
+

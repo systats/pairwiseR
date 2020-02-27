@@ -116,6 +116,7 @@ vignette_server <- function(input, output, session, pair, user){
   })
   
   observeEvent(input$remove_last, {
+    con <- pairwiseR::init_db(user = user, path = "data/mp.db")
       removed <- con %>%
             remove_last_action(user = user)
   })
