@@ -1,0 +1,32 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+Lieber Herr/Frau XX, 
+
+Willkommen beim Projekt "IdeoScale"!
+
+Im Rahmen eines wissenschaftlichen Projekt bei der Universität Konstanz, führen wir eine Experten-Umfrage zum Thema Positionierung von Bundestagsmitglieder auf der Links-Rechts Achse. Sie wurden ausgewählt aufgrund ihrem Engagement bei einer der jugend-parteiliche Organisation Deutschlands. Wir sind nämlich der Meinung, dass Ihre Proximität mit dem deutschen politischen Leben Ihnen das Wissen gibt, das wir für unsere Studie brauchen. 
+
+Das Ziel der Studie ist die links-rechts Positionierung von jetzigen Bundestagsmitglieder einzuschätzen. Um dieses Ziel zu erreichen, fragen 25 Mitglieder der jugend-parteiliche Organisationen mittels einer App die Position von zwei Mitglieder des Bundestags zu vergleichen (Screenshot in Anhang). Diese Vergleiche werden wiederholt, bis wir die Position der Abgeordnete präzis einschätzen können. 
+
+Die Studie dauert max. zwei Stunden und wird mit 70€ vergütet. Ihre individuelle Antworte werden nicht veröffentlicht, sondern benutzt um eine aggregierte Messung zu berechnen. Die Registration für die Studie erfolgt über folgendes Formular.
+
+Wir würden uns sehr freuen, wenn sie an dieser Studie teilnehmen würden. Falls sie Fragen haben, stehen wir zur Verfügung.
+
+
+
+
+
+
+
+Wir sind Ben und Simon, zwei Politikwissenschaftler der Universität Konstanz und wir führen eine Studie durch zum Thema Abgeordneten Positionierung auf der Links-Rechts Achse. Mittels einer App werden zwei Kandidaten des deutschen Bundestags präsentiert und es wird die Frage gestellt: Welches dieser zwei Mitglieder des Bundestags vertritt die linkere Position?
+
+Dazu benötigen wir Experten des deutschen Parteienspektrums um Daten zu erheben über einzelne Abgeorndente im Vergleich. Die einzelnen Vergleiche werden über ein Modell komprimiert und wir erhalten eine zusammenfassung eurer Einschätzungen zu jedem Abgeordneten. 
+
+Wir erwarten mindestens 700 Vergleiche pro Experte und Vergüten den Zeitaufwand mit pauschal mit 75€ (ca. 40€ pro Stunde). Die Auszahlung regeln wir individuell (oder über den survey, paypal?).
+
+Vielen Danke für euer Wissen!
+
+Beste Grüße

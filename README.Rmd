@@ -14,6 +14,40 @@ pacman::p_load(tidyverse)
 devtools::load_all()
 ```
 
+## TODO
+
+### Match Play
+
++ Pre-Survey to register through google-doc
+  + Name 
+  + Mail
+  + Partei
+  + Paiment preferences
+  
++ Skype Meeting agenda for survey explanation
+
++ Objective: 
+  + 400 to 500 comparisons 2-3 Stunden (70€)
+  + Amazon Gutschein/Paypal/Überweisung
+
++ Wie wollen wir den Teilnehmer kontaktieren? 
+  + Mail
+  + Twitter
+
+
+
+## To discuss
+
++ User Management
++ Phrasing
++ What par_anal argument should we use? (use to analytically reduce the pairs)
++ What test should we still run? 
+
++ How many participants? (#/party)
++ How much do we pay them? (depending on how much time they need?)
++ How do we pay them? 
+
+
 ## Main 
 
 ```{r}

@@ -10,7 +10,7 @@ vignette_ui <- function(id){
         a(class="ui fluid button action-button", id = ns("ab"), href = "#", 
           div(class="content",
               HTML('<center>'),
-              div(class = "meta", "Gleich"),
+              div(class = "meta", "Gleiche Position"),
               HTML('</center>')
           )
         )
@@ -44,8 +44,12 @@ vignette_ui <- function(id){
        actionButton(ns("ignore_a"), label = "Unbekannt", class = "big basic ui button"),
        #actionButton(ns("ignore"), label = "Beide", class = "big ui button"),    
        actionButton(ns("ignore_b"), label = "Unbekannt", class = "big basic ui button")
-
+    ), 
+    div(class = "ui buttons",style = "display: flex; justify-content: center; ",
+  
+       actionButton(ns("remove_last"), label = "Undo", class = "big basic grey ui button"),
     )
+    
   )
 
 }
@@ -57,7 +61,7 @@ vignette_ui <- function(id){
 
 #' vignette_server
 #' @export
-vignette_server <- function(input, output, session, pair){
+vignette_server <- function(input, output, session, pair, user){
   
   
   output$left <- renderUI({
@@ -110,8 +114,9 @@ vignette_server <- function(input, output, session, pair){
     log$state <- "ignore"
   })
   
-  observeEvent(input$undo, {
-    log$state <- "undo"
+  observeEvent(input$remove_last, {
+      removed <- con %>%
+            remove_last_action(user = user)
   })
   
   observeEvent(log$state, {

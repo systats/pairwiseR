@@ -52,6 +52,8 @@ server <- function(input, output, session){
     
     #' inerheritance from previous version
     party <- "all"
+    .GlobalEnv$next_pageid_1 <- NULL
+    .GlobalEnv$next_pageid_2 <- NULL
     
     ### User authentification
     user_sheet <- "https://docs.google.com/spreadsheets/d/1ZbSSxaMuf0fV5_2exz69ahOMZH46bNwlkXSKyOjYD5w/edit?usp=sharing"
@@ -76,9 +78,10 @@ server <- function(input, output, session){
             dplyr::tbl("com") %>%
             dplyr::as_tibble() %>%
             dplyr::filter(user == user()$username) %>%
+            dplyr::filter(type == "user") %>%
             nrow
         #value <- nrow(get_already(con, user())) #%/% 2
-        shinyjs::runjs(glue::glue("$('#pro').progress({value: <value>, total: 500});", .open = "<", .close = ">"))
+        shinyjs::runjs(glue::glue("$('#pro').progress({value: <value %/% 2>, total: 500});", .open = "<", .close = ">"))
     })
     
     
@@ -109,7 +112,7 @@ server <- function(input, output, session){
     logstate <- reactive({ log$state })
     
     pair <- reactive({
-        
+        print(.GlobalEnv$next_pageid_2)
         req(user())
         if(user()$status == 0) return(NULL)
         
@@ -118,11 +121,11 @@ server <- function(input, output, session){
         
         new_pair <- pairwiseR::get_new_pair(user = user()$username,
                                             con = con,
-                                            pair_mp = pairwiseR::get_pair_matrix())
+                                            pair_mp = get_pair_matrix(pageid_1  = .GlobalEnv$next_pageid_1, pageid_2  = .GlobalEnv$next_pageid_2 ))
         return(new_pair)
     })
     
-    action <- callModule(vignette_server, "action", pair)
+    action <- callModule(vignette_server, "action", pair, user = user()$username)
     
     observe({
         req(action())
@@ -132,14 +135,24 @@ server <- function(input, output, session){
     })
     
     observeEvent(action(), {
+
+        if(!is.null(.GlobalEnv$next_pageid_1)){.GlobalEnv$next_pageid_1 <- NULL}
+        if(!is.null(.GlobalEnv$next_pageid_2)){.GlobalEnv$next_pageid_2 <- NULL}
         
         con <- pairwiseR::init_db(user = user()$username, path = "data/mp.db") #, force = T
+        
+        # if(action() == "undo"){
+        #     removed <- con %>%
+        #         remove_last_action(user = user()$username)
+        # }
         
         if(stringr::str_detect(action(), "ignore")){
             if(stringr::str_detect(action(), "a")){
                 add_dont_know(user = user()$username, pageid = pair()$pageid_1, name = pair()$name_1, con = con)
+                .GlobalEnv$next_pageid_2 <- pair()$pageid_2
             } else if(stringr::str_detect(action(), "b")){
                 add_dont_know(user = user()$username, pageid = pair()$pageid_2, name = pair()$name_2, con = con)
+                .GlobalEnv$next_pageid_1 <- pair()$pageid_1
             } else {
                 add_dont_know(user = user()$username, pageid = pair()$pageid_1, name = pair()$name_1, con = con)
                 add_dont_know(user = user()$username, pageid = pair()$pageid_2, name = pair()$name_2, con = con)
